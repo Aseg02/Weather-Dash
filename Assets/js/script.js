@@ -1,15 +1,15 @@
-var key = '64f2ee2a8261daa4d9f780f5b365f275';
-var city = "Denver"
+var key = 'e7f98c5b4098b856e784c51e9a1f7fca';
+var city = "Austin"
 
 //Current time and date
 var date = moment().format('dddd, MMMM Do YYYY');
 var dateTime = moment().format('YYYY-MM-DD HH:MM:SS')
 var cityHist = [];
 
-//Save the text value of the search, saves it to storage
+//Saves the text value of the search, saves it to storage
 $('.search').on("click", function (event) {
 	event.preventDefault();
-	city = $(this).parent('.btnPar').siblings('.textVal').val().trim();
+	city = $(this).parent('.buttonPar').siblings('.textVal').val().trim();
 	if (city === "") {
 		return;
 	};
@@ -27,18 +27,18 @@ function getHistory() {
 
 	for (let i = 0; i < cityHist.length; i++) {
 		var rowEl = $('<row>');
-		var btnEl = $('<button>').text(`${cityHist[i]}`)
-		rowEl.addClass('row histButtonRow');
-		btnEl.addClass('btn btn-outline-secondary histButton');
-		btnEl.attr('type', 'button');
+		var buttonEl = $('<button>').text(`${cityHist[i]}`)
+		rowEl.addClass('row ListButtonRow');
+		buttonEl.addClass('button button-outline-secondary listButton');
+		buttonEl.attr('type', 'button');
 		contHistEl.prepend(rowEl);
-		rowEl.append(btnEl);
+		rowEl.append(buttonEl);
 	} if (!city) {
 		return;
 	}
 
 	//Allows buttons to start search 
-	$('.histButton').on("click", function (event) {
+	$('.listButton').on("click", function (event) {
 		event.preventDefault();
 		city = $(this).text();
 		fiveForecastEl.empty();
@@ -51,7 +51,10 @@ var cardTodayBody = $('.cardBodyToday')
 
 
 //Applies weather data to today card, launches five day forecast
+// API KEY GOES HERE
 function getWeatherToday() {
+	var city = $('.textVal').val ();
+	//var city = 'Austin';
 	var getUrlCurrent = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${key}`;
 
 	$(cardTodayBody).empty();
@@ -63,15 +66,11 @@ function getWeatherToday() {
 		$('.cardTodayDate').text(date);
 
 		//icons
-		$('.icons').attr('src', `https://openweathermap.org/img/wn/${response.weather[0].icon}@3x.png`);
+		$('.icons').attr('src', `https://api.openweathermap.org/img/wn/${response.weather[0].icon}@3x.png`);
 
 		// temp
 		var pEl = $('<p>').text(`Temperature: ${response.main.temp} °F`);
 		cardTodayBody.append(pEl);
-
-		//feels like
-		var pElTemp = $('<p>').text(`Feels Like: ${response.main.feels_like} °F`);
-		cardTodayBody.append(pElTemp);
 
 		//humidity
 		var pElHumid = $('<p>').text(`Humidity: ${response.main.humidity} %`);
@@ -88,8 +87,8 @@ function getWeatherToday() {
 		var cityLat = response.coord.lat;
 
 		// console.log(cityLat);
-		var getUrlUvi = `https://api.openweathermap.org/data/2.5/onecall?lat=${cityLat}&lon=${cityLon}&exclude=hourly,daily,minutely&appid=${key}`;
-
+		var getUrlUvi = 'https://open-weather13.p.rapidapi.com/city/landon/data/onecall?lat=${citylat}&lon=${citylon}&appid={key};'
+		 
 		$.ajax({
 			url: getUrlUvi,
 			method: 'GET',
@@ -100,7 +99,7 @@ function getWeatherToday() {
 			pElUvi.append(uviSpan);
 			cardTodayBody.append(pElUvi);
 
-			//sets UV index to match exposure chart based on color 
+			//sets UV index to match exposure
 			if (uvi >= 0 && uvi <= 2) {
 				uviSpan.attr('class', 'green');
 			} else if (uvi > 2 && uvi <= 5) {
@@ -120,7 +119,7 @@ function getWeatherToday() {
 var fiveForecastEl = $('.fiveForecast');
 
 function getFiveDayForecast() {
-	var getUrlFiveDay = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=imperial&appid=${key}`;
+	var getUrlFiveDay = `https://open-weather13.p.rapidapi.com/city/landon/data/forecast?q=${city}&units=imperial&appid=${key}`;
 
 	$.ajax({
 		url: getUrlFiveDay,
@@ -129,7 +128,7 @@ function getFiveDayForecast() {
 		var fiveDayArray = response.list;
 		var myWeather = [];
 
-		//Created an object, would allow for easier data read
+		//Created an object, allow for easier data read
 		$.each(fiveDayArray, function (index, value) {
 			testObj = {
 				date: value.dt_txt.split(' ')[0],
@@ -168,15 +167,12 @@ function getFiveDayForecast() {
 				//divElIcon
 			var divElIcon = $('<img>');
 			divElIcon.attr('class', 'icons');
-			divElIcon.attr('src', `https://openweathermap.org/img/wn/${myWeather[i].icon}@2x.png`);
+			divElIcon.attr('src', `https://open-weather13.p.rapidapi.com/city/landon/img/wn/${myWeather[i].icon}@2x.png`);
 			divElBody.append(divElIcon);
 
 			//Temp
 			var pElTemp = $('<p>').text(`Temperature: ${myWeather[i].temp} °F`);
 			divElBody.append(pElTemp);
-			//Feels Like
-			var pElFeel = $('<p>').text(`Feels Like: ${myWeather[i].feels_like} °F`);
-			divElBody.append(pElFeel);
 			//Humidity
 			var pElHumid = $('<p>').text(`Humidity: ${myWeather[i].humidity} %`);
 			divElBody.append(pElHumid);
@@ -184,7 +180,7 @@ function getFiveDayForecast() {
 	});
 };
 
-//Allows for example data to load for Austin
+//Allows data to load for Austin
 function initLoad() {
 	var cityHistStore = JSON.parse(localStorage.getItem('city'));
 	if (cityHistStore !== null) {
